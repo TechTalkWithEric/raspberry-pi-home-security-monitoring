@@ -17,7 +17,14 @@
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/src/pi_home_security/pi_ui/main.py",
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "env": {                
+                "ENVRIONMENT": "dev",
+                "DEBUG_MODE": "True",
+                "PYTHONPATH": "${workspaceFolder}:${workspaceFolder}/src:",
+                "RUN_INTEGRATION_TESTS": "True",                
+                
+            },
         }
     ]
 }
