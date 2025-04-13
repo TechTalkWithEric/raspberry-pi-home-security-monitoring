@@ -1,8 +1,5 @@
-try:
-    import RPi.GPIO as GPIO
-except (ImportError, RuntimeError):
-    import pi_home_security.pi_ui.dashboard as GPIO
 
+import pi_home_security.pi_ui.dashboard as GPIO
 
 
 GPIO.setmode(GPIO.BCM)

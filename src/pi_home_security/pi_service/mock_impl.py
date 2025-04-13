@@ -9,7 +9,7 @@ class MockGPIOService(GPIOInterface):
     def setup_input(self, pin: int, input_type="button", **kwargs):
         self.state[pin] = False
 
-    def setup_output(self, pin: int, input_type="button", **kwargs):
+    def setup_output(self, pin: int, output_type="button", **kwargs):
         self.state[pin] = False
 
     def read(self, pin: int) -> bool:

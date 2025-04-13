@@ -2,8 +2,10 @@
 
 from gpiozero import Button, LED, MotionSensor, DigitalOutputDevice
 from gpiozero import Device
-from gpiozero.pins.lgpio import LGPIOFactory
-
+try:
+    from gpiozero.pins.lgpio import LGPIOFactory
+except ImportError:
+    from .mock_lgpio_factory import LGPIOFactory
 from .base import GPIOInterface
 
 # setup the pin factory
