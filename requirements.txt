@@ -1,13 +1,3 @@
 # requirements.txt
-# For MacOS development with mock GPIO UI
-# Note: RPi.GPIO will not install on MacOS
-
-# Use this mock instead of RPi.GPIO
-# Enhanced mock GPIO is included locally
-
-# Tkinter is a system package on macOS and not installable via pip.
-# Make sure to install it via Homebrew or pyenv with --with-tcl-tk
-
-# Optional packages if you want to simulate logs or extend functionality
-
---index-url https://pypi.org/simple
+gpiozero 
+pigpio

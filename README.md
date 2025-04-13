@@ -30,3 +30,9 @@ brew install tcl-tk
 brew install pyenv
 
 ```
+
+
+## Future
+
+Add support for Ring Actions / Notifications
+- https://github.com/python-ring-doorbell/python-ring-doorbell

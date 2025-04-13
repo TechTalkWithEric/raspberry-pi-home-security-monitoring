@@ -6,6 +6,7 @@ VENV=".venv"
 
 echo "🔧 Creating virtual environment..."
 python3 -m venv $VENV
+touch $VENV/pip.conf
 
 echo "📦 Activating and installing requirements..."
 source $VENV/bin/activate

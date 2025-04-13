@@ -1,5 +1,6 @@
 
---index-url https://pypi.org/simple
+# development requirements
+
 pytest
 mypy
 # setuptools

@@ -1,11 +1,11 @@
 
-# enhanced_mock_gpio_ui.py — Mock RPi.GPIO with Tkinter UI, tabs, and visual layout
+
 
 import logging
 import tkinter as tk
 from tkinter import ttk, scrolledtext
 from threading import Thread
-from os_utils import is_macos
+from pi_home_security.utilities.os_utils import is_macos
 logging.basicConfig(level=logging.DEBUG, format='[MOCK GPIO] %(message)s')
 
 # Constants
@@ -17,6 +17,11 @@ PUD_UP = 'PUD_UP'
 PUD_DOWN = 'PUD_DOWN'
 HIGH = 1
 LOW = 0
+
+HIGH_COLOR = 'green'
+LOW_COLOR = 'red'
+HIGH_STATE = 'closed'
+LOW_STATE = 'open'
 
 # State tracking
 _pin_states = {}
@@ -57,7 +62,7 @@ def setmode(mode):
 def setup(pin, mode, pull_up_down=None):
     bcm_pin = _resolve_pin(pin)
     # default to low state
-    _pin_states[bcm_pin] = LOW if pull_up_down == PUD_UP else HIGH
+    _pin_states[bcm_pin] = HIGH if pull_up_down == PUD_UP else LOW
     _pin_modes[bcm_pin] = mode
     if mode == IN:
         _input_pins.append(bcm_pin)
@@ -88,6 +93,14 @@ def cleanup():
     global _mode_set
     _mode_set = None
 
+def get_label_info(pin):
+    bcm_pin = _resolve_pin(pin)
+    current_state = _pin_states.get(bcm_pin, LOW)
+    color = LOW_COLOR if current_state == LOW else HIGH_COLOR
+    state_text = LOW_STATE if current_state == LOW else HIGH_STATE
+    text = f"GPIO {pin}: {current_state} ({state_text})"
+    return text, color
+
 # GUI
 def build_ui():
     root = tk.Tk()
@@ -114,9 +127,10 @@ def build_ui():
         print(f"current state: {current}")
         new_state = HIGH if current == LOW else LOW
         _pin_states[pin] = new_state
-        color = "green" if new_state == LOW else "red"
+        
+        text, color = get_label_info(pin)
         input_labels[pin].config(
-            text=f"GPIO {pin}: {new_state}",
+            text=text,
             bg=color
         )
         logging.debug(f"Toggled GPIO {pin} to {new_state}")
@@ -126,15 +140,26 @@ def build_ui():
     max_rows = 20
     columns = 1
     if total_length > max_rows:
-        columns = total_length// max_rows + 1
+        columns = total_length// max_rows
 
+    layout = "vertical"
+
+    row = 0
+    column = 0
     for idx, pin in enumerate(sorted(set(_input_pins))):
         
         current_state = _pin_states.get(pin, LOW)
-        row=idx // columns
-        column=idx % columns
-        color = "green" if current_state == LOW else "red"
-        lbl = tk.Label(button_frame, text=f"GPIO {pin}: {current_state}", width=20,
+        if layout == "vertical":
+            # 1-x per column
+            row = idx % max_rows
+            column = idx // max_rows
+        else:
+            row=idx // columns
+            column=idx % columns
+        
+        
+        text, color = get_label_info(pin)
+        lbl = tk.Label(button_frame, text=text, width=20,
                     relief="groove", bd=2, bg=color)
         lbl.bind("<Button>", lambda e, p=pin: toggle(p, e))
         lbl.grid(row=row, column=column, padx=5, pady=2, sticky="ew")

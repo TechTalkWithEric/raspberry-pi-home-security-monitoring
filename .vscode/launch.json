@@ -13,10 +13,10 @@
             "console": "integratedTerminal"
         },
         {
-            "name": "Python Debugger: Main",
+            "name": "Python Debugger: Dashboard",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/src/main.py",
+            "program": "${workspaceFolder}/src/pi_home_security/pi_ui/main.py",
             "console": "integratedTerminal"
         }
     ]

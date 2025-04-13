@@ -1,3 +1,0 @@
---index-url https://pypi.org/simple
-# Note: RPi.GPIO will not install on MacOS
-RPi.GPIO

@@ -1,7 +1,7 @@
 
 import unittest
-from rpi_home_security.pi_board import PiBoard
-from rpi_home_security.pi_pin import PiPin
+from pi_home_security.components.pi_board import PiBoard
+from pi_home_security.components.pi_pin import PiPin
 
 class TestPiBoard(unittest.TestCase):
     def test_gpio(self):
