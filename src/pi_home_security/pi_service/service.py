@@ -13,8 +13,8 @@ class GPIOService(GPIOInterface):
     def setup_input(self, pin: int, input_type="button", **kwargs):
         self.service.setup_input(pin, input_type=input_type, **kwargs)
 
-    def setup_output(self, pin: int, input_type="button", **kwargs):
-        self.service.setup_output(pin, input_type=input_type, **kwargs)
+    def setup_output(self, pin: int, output_type="led", **kwargs):
+        self.service.setup_output(pin, output_type=output_type, **kwargs)
 
     def read(self, pin: int) -> bool:
         return self.service.read(pin)

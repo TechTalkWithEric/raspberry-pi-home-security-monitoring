@@ -36,3 +36,56 @@ brew install pyenv
 
 Add support for Ring Actions / Notifications
 - https://github.com/python-ring-doorbell/python-ring-doorbell
+
+
+
+## Pi Setup
+
+In addition to adding this python code you will need to make sure some of the underlying services are installed as well.
+
+```sh
+# install the services
+sudo apt update
+sudo apt install pigpio python3-pigpio
+
+# start the services
+sudo systemctl enable pigpiod
+sudo systemctl start pigpiod
+
+# verfiy
+sudo systemctl status pigpiod
+
+```
+
+## Staus Failures
+
+`“This system does not appear to be a Raspberry Pi.”`
+The package may not be Pi5 ready
+
+```sh
+sudo apt remove pigpio
+
+cd ~
+git clone https://github.com/joan2937/pigpio.git
+cd pigpio
+make
+sudo make install
+
+# start the service
+sudo pigpiod
+
+sudo systemctl status pigpiod
+```
+
+
+sudo apt remove pigpio 
+sudo apt remove python3-pigpio
+
+# Pi0-Pi 5 Compatabilty Libraries
+To make this compatibale with Pi 5 I'm using lgpio, this is a system wide library
+and is not installed with pip.
+
+```sh
+sudo apt install lgpio python3-lgpio
+
+```

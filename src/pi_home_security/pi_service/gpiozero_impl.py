@@ -1,8 +1,13 @@
 # gpiozero-based implementation
 
 from gpiozero import Button, LED, MotionSensor, DigitalOutputDevice
+from gpiozero import Device
+from gpiozero.pins.lgpio import LGPIOFactory
+
 from .base import GPIOInterface
 
+# setup the pin factory
+Device.pin_factory = LGPIOFactory()
 
 class GPIOZeroService(GPIOInterface):
     # Default input/output type mappings
@@ -26,13 +31,13 @@ class GPIOZeroService(GPIOInterface):
     def setup_input(self, pin: int, input_type="button", **kwargs):
         cls = self.INPUT_CLASSES.get(input_type)
         if not cls:
-            raise ValueError(f"Unsupported input type: {input_type}")
+            raise ValueError(f"Unsupported input type: {input_type}")        
         self.inputs[pin] = cls(pin, **kwargs)
 
     def setup_output(self, pin: int, output_type="led", **kwargs):
         cls = self.OUTPUT_CLASSES.get(output_type)
         if not cls:
-            raise ValueError(f"Unsupported output type: {output_type}")
+            raise ValueError(f"Unsupported output type: {output_type}")        
         self.outputs[pin] = cls(pin, **kwargs)
 
     def read(self, pin: int) -> bool:
