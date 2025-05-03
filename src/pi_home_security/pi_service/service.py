@@ -4,14 +4,14 @@ import os
 from .gpiozero_impl import GPIOZeroService
 from .mock_impl import MockGPIOService
 from .base import GPIOInterface
-# from .pigpio_impl import PiGPIOService  # Optional
+
 
 class GPIOService(GPIOInterface):
     def __init__(self):
         self.service = get_gpio_service()
 
-    def setup_input(self, pin: int, input_type="button", **kwargs):
-        self.service.setup_input(pin, input_type=input_type, **kwargs)
+    def setup_input(self, pin: int, input_type="button", name: str | None = None, **kwargs):
+        self.service.setup_input(pin, input_type=input_type, name=name, **kwargs)
 
     def setup_output(self, pin: int, output_type="led", **kwargs):
         self.service.setup_output(pin, output_type=output_type, **kwargs)

@@ -10,10 +10,31 @@
             "type": "debugpy",
             "request": "launch",
             "program": "${file}",
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "env": {                
+                "ENVRIONMENT": "dev",
+                "DEBUG_MODE": "True",
+                "PYTHONPATH": "${workspaceFolder}:${workspaceFolder}/src:",
+                "RUN_INTEGRATION_TESTS": "True",                
+                
+            },
         },
         {
             "name": "Python Debugger: Dashboard",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/pi_home_security/main.py",
+            "console": "integratedTerminal",
+            "env": {                
+                "ENVRIONMENT": "dev",
+                "DEBUG_MODE": "True",
+                "PYTHONPATH": "${workspaceFolder}:${workspaceFolder}/src:",
+                "RUN_INTEGRATION_TESTS": "True",                
+                
+            },
+        },
+        {
+            "name": "Python Debugger: Testing Dashboard",
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/src/pi_home_security/pi_ui/main.py",

@@ -2,35 +2,57 @@ from gpiozero import Button, Device
 from gpiozero.pins.lgpio import LGPIOFactory
 from signal import pause
 
-# Use the LGPIO factory for Raspberry Pi 5 compatibility
-Device.pin_factory = LGPIOFactory()
+from pi_home_security.pi_service.service import GPIOService
 
-# List of (pin, name) tuples
-SENSOR_CONFIG = [
-    (17, "Front Door"),
-    (18, "Kitchen Door"),
-    (24, "Breakfast Door"),
-    (25, "Porch Door"),
-    (23, "Basement Door"),
+
+# sensor list
+# TODO: pull from a config file
+SENSOR_CONFIGS= [
+    {
+        "pin": 17,
+        "name": "Front Door",
+        "type": "door"
+    },
+    {
+        "pin": 18,
+        "name": "Kitchen/Garage Door",
+        "type": "door"
+    },
+    {
+        "pin": 24,
+        "name": "Kitchen/Deck Door",
+        "type": "door"
+    },
+    {
+        "pin": 25,
+        "name": "GreatRoom Door",
+        "type": "door"
+    },
+    {
+        "pin": 23,
+        "name": "Basement Outside Door",
+        "type": "door"
+    }
 ]
 
-# Store Button objects
-sensors = []
 
-def make_handlers(name):
-    def on_open():
-        print(f"🔓 {name} opened! 🚨")
-    def on_close():
-        print(f"🔒 {name} closed! ✅")
-    return on_open, on_close
 
-# Initialize sensors and assign handlers
-for pin, name in SENSOR_CONFIG:
-    sensor = Button(pin, pull_up=True)
-    on_open, on_close = make_handlers(name)
-    sensor.when_pressed = on_close
-    sensor.when_released = on_open
-    sensors.append(sensor)
+def on_door_opened(pin, name):
+    print(f"👐 {name} (pin {pin}) opened!")
 
-print("🟢 Listening for sensor activity (Ctrl+C to exit)...")
+def on_door_closed(pin, name):
+    print(f"🔒 {name} (pin {pin}) closed.")
+
+serivce = GPIOService()
+
+for item in SENSOR_CONFIGS:
+    serivce.setup_input(
+        pin=item.get("pin"),
+        input_type=item.get("type"),
+        name=item.get("name"),
+        when_pressed=on_door_opened,
+        when_released=on_door_closed
+    )
+
+print("🟢 Listening for sensor activity v2 (Ctrl+C to exit)...")
 pause()

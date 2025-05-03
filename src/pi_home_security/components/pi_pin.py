@@ -4,7 +4,7 @@ RPi
 from typing import Literal
 
 class PiPin:
-    "A Raspberry Pi GPIO Pine"
+    "A Raspberry Pi GPIO Pin"
 
     def __init__(
         self,

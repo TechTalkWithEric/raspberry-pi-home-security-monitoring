@@ -2,10 +2,8 @@
 
 from gpiozero import Button, LED, MotionSensor, DigitalOutputDevice
 from gpiozero import Device
-try:
-    from gpiozero.pins.lgpio import LGPIOFactory
-except ImportError:
-    from .mock_lgpio_factory import LGPIOFactory
+from gpiozero.pins.lgpio import LGPIOFactory
+
 from .base import GPIOInterface
 
 # setup the pin factory
@@ -17,8 +15,19 @@ class GPIOZeroService(GPIOInterface):
         "switch": Button,
         "button": Button,
         "door_sensor": Button,
+        "door": Button,
         "window_sensor": Button,
+        "window": Button,
         "motion": MotionSensor
+    }
+    # Maps input_type → supported event attributes
+    INPUT_EVENTS = {
+        "door_sensor": ["when_pressed", "when_released"],
+        "door": ["when_pressed", "when_released"],
+        "window_sensor": ["when_pressed", "when_released"],
+        "window": ["when_pressed", "when_released"],
+        "button": ["when_pressed", "when_released", "when_held"],
+        "motion": ["when_motion", "when_no_motion"]
     }
 
     OUTPUT_CLASSES = {
@@ -30,11 +39,32 @@ class GPIOZeroService(GPIOInterface):
         self.inputs = {}   # pin: instance
         self.outputs = {}  # pin: instance
 
-    def setup_input(self, pin: int, input_type="button", **kwargs):
+    def setup_input(self, pin: int, input_type="button", name=None, **kwargs):
         cls = self.INPUT_CLASSES.get(input_type)
         if not cls:
-            raise ValueError(f"Unsupported input type: {input_type}")        
-        self.inputs[pin] = cls(pin, **kwargs)
+            raise ValueError(f"Unsupported input type: {input_type}")
+
+        # Optional device name for identification
+        name = name or f"{input_type}_{pin}"
+
+        # Get valid events for this input type
+        valid_events = self.INPUT_EVENTS.get(input_type, [])
+
+        # Pull event handlers out of kwargs
+        event_handlers = {
+            event: kwargs.pop(event, None)
+            for event in valid_events
+        }
+
+        device = cls(pin, **kwargs)
+        self.inputs[pin] = device
+
+        # Wrap and assign event handlers
+        for event, handler in event_handlers.items():
+            if handler:
+                def wrapped_handler(handler=handler, pin=pin, name=name):
+                    return lambda: handler(pin=pin, name=name)
+                setattr(device, event, wrapped_handler())
 
     def setup_output(self, pin: int, output_type="led", **kwargs):
         cls = self.OUTPUT_CLASSES.get(output_type)

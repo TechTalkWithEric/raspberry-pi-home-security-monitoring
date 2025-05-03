@@ -32,10 +32,7 @@ brew install pyenv
 ```
 
 
-## Future
 
-Add support for Ring Actions / Notifications
-- https://github.com/python-ring-doorbell/python-ring-doorbell
 
 
 
@@ -44,12 +41,22 @@ Add support for Ring Actions / Notifications
 In addition to adding this python code you will need to make sure some of the underlying services are installed as well.
 
 
-## Pi0-Pi 5 Compatabilty Libraries
+### Pi0-Pi 5 Compatabilty Libraries
 To make this compatibale with Pi 5 I'm using lgpio, this is a system wide library
-and is not installed with pip.
+and is not installed with pip (however `lgpio` is a pip library that needs to be installed).
 
 Install this on the raspberry pi device
 ```sh
 sudo apt install lgpio python3-lgpio
 
 ```
+
+
+## Future Enhancements
+
+Add support for Ring Actions / Notifications
+- https://github.com/python-ring-doorbell/python-ring-doorbell
+
+Add IoT MQTT Support (send events to AWS for longterm monitoring and actions)
+- https://docs.aws.amazon.com/iot/latest/developerguide
+- Store the data in DynamoDB

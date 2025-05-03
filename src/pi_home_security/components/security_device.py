@@ -1,5 +1,5 @@
 from datetime import datetime
-from pi_home_security.pi_pin import PiPin
+from pi_home_security.components.pi_pin import PiPin
 
 
 

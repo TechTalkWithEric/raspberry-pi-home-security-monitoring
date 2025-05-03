@@ -226,3 +226,6 @@ def run_ui():
         start_ui_async()
 
 
+def main():
+    run_ui()
+
