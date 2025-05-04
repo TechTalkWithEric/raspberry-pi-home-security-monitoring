@@ -1,4 +1,4 @@
-import os
+# PiMCP23017ExtensionBoard
 import glob
 import digitalio
 import busio
@@ -9,7 +9,7 @@ from adafruit_mcp230xx.mcp23017 import MCP23017
 from pi_home_security.components.pi_pin import PiPin
 
 
-class PiExtensionBoard:
+class PiMCP23017ExtensionBoard:
     def __init__(self, address=0x27, i2c_bus=None):
         self.address = address
         self.i2c_bus_number = self.find_i2c_bus(address) if i2c_bus is None else i2c_bus
@@ -31,11 +31,11 @@ class PiExtensionBoard:
             pin.pull = digitalio.Pull.UP
 
             label = f"EXT{pin_num:02d}"
-            pi_pin = PiPin(bcm=label, board=label, name=f"MCP23017 Pin {pin_num}", external_pin=pin)
+            pi_pin = PiPin(bcm=pin, name=f"MCP23017 Pin {pin_num} label: {label}")
             self._pins[label] = pi_pin
 
     @property
-    def pins(self):
+    def pins(self)->dict:
         return self._pins
 
     @staticmethod
@@ -54,7 +54,7 @@ class PiExtensionBoard:
 
 
 def main():
-    board:PiExtensionBoard = PiExtensionBoard()
+    board:PiMCP23017ExtensionBoard = PiMCP23017ExtensionBoard()
 
 
 

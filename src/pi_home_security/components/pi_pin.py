@@ -9,8 +9,8 @@ class PiPin:
     def __init__(
         self,
         bcm: int,
-        board: int,
-        name: str,
+        board: int = -1,
+        name: str = "",
         mode: Literal["IN", "OUT"] = "IN",
         state: str | None = None,
         description: str | None = None,
@@ -23,7 +23,7 @@ class PiPin:
         self.state: str | None = state
         self.description: str | None = description
         self.usage: str | None = usage
-        
+
         if self.mode not in ["IN", "OUT"]:
             raise ValueError(f"Invalid mode: {self.mode}")
 

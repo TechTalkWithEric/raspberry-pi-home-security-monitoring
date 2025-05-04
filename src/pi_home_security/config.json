@@ -1,0 +1,70 @@
+{
+    "sensors": [
+        {
+            "name": "Front Door",
+            "pin": 17,
+            "gpio_controller": "pi",
+            "connection_type": "wired",
+            "sensor_type": "button",            
+            "direction": "IN",
+            "zone": "",
+            "description": "",
+            "allow_alarm_by_pass": false
+        },
+        {
+            "name": "Kitchen/Garage Door",
+            "pin": 18,            
+            "gpio_controller": "pi",
+            "connection_type": "wired",
+            "sensor_type": "button",            
+            "direction": "IN",
+            "zone": "",
+            "description": "",
+            "allow_alarm_by_pass": false
+        },
+        {
+            "pin": 24,
+            "name": "Kitchen/Deck Door",
+            "gpio_controller": "pi",
+            "connection_type": "wired",
+            "sensor_type": "button",            
+            "direction": "IN",
+            "zone": "",
+            "description": "",
+            "allow_alarm_by_pass": false
+        },
+        {
+            "pin": 25,
+            "name": "GreatRoom Door",
+            "gpio_controller": "pi",
+            "connection_type": "wired",
+            "sensor_type": "button",            
+            "direction": "IN",
+            "zone": "",
+            "description": "",
+            "allow_alarm_by_pass": false
+        },
+        {
+            "pin": 23,
+            "name": "Basement Outside Door",
+            "gpio_controller": "pi",
+            "connection_type": "wired",
+            "sensor_type": "button",            
+            "direction": "IN",
+            "zone": "",
+            "description": "",
+            "allow_alarm_by_pass": false
+        },
+        {
+            "pin": 1,
+            "name": "Office Door",
+            "gpio_controller": "mcp23017",
+            "connection_type": "wired",
+            "sensor_type": "button",            
+            "direction": "IN",
+            "zone": "",
+            "description": "",
+            "allow_alarm_by_pass": false
+        }
+    ]
+}

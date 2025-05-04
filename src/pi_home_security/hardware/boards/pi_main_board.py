@@ -1,4 +1,6 @@
 
+# PiMainBoard
+from typing import Literal
 from pi_home_security.components.pi_pin import PiPin
 
 
@@ -8,11 +10,12 @@ class PiMainBoard:
     A Raspberry Pi Virtual Board
     
     """
-    def __init__(self, mode="BCM"):
+    def __init__(self, mode: Literal["BCM", "Physical"]="BCM"):
         self.mode = mode.upper()
         self._pins_by_bcm = {}
-        self._pins_by_board = {}
+        self._pins_by_physical_location = {}
         self._init_pins()
+        
 
     def _init_pins(self):
         # Mapping of BCM, BOARD, name
@@ -36,12 +39,21 @@ class PiMainBoard:
         for bcm, board, name in mappings:
             pin = PiPin(bcm, board, name)
             self._pins_by_bcm[bcm] = pin
-            self._pins_by_board[board] = pin
+            self._pins_by_physical_location[board] = pin
+
 
     @property
-    def gpio(self):
+    def pins(self)-> dict:
+        """Get the pins by mode"""
+        if self.mode == "BCM":
+            return self.gpio_pins
+        else:
+            return self.physical_pins
+    
+    @property
+    def gpio_pins(self)-> dict:
         return self._pins_by_bcm
 
     @property
-    def board(self):
-        return self._pins_by_board
+    def physical_pins(self)->dict:
+        return self._pins_by_physical_location

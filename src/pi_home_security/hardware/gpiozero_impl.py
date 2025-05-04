@@ -23,6 +23,8 @@ class GPIOZeroService(GPIOInterface):
     }
     # Maps input_type → supported event attributes
     INPUT_EVENTS = {
+        "switch": ["when_pressed", "when_released"],
+        "button": ["when_pressed", "when_released"],
         "door_sensor": ["when_pressed", "when_released"],
         "door": ["when_pressed", "when_released"],
         "window_sensor": ["when_pressed", "when_released"],

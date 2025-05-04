@@ -1,6 +1,6 @@
 
 import unittest
-from pi_home_security.pi_service.service import GPIOService
+from pi_home_security.hardware.gpio_service import GPIOService
 
 class PiGPIOServiceTest(unittest.TestCase):
 

@@ -1,5 +1,5 @@
 import argparse
-from pi_home_security.pi_service.service import get_gpio_service
+from pi_home_security.hardware.gpio_service import get_gpio_service
 
 def main():
     gpio = get_gpio_service()

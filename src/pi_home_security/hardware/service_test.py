@@ -1,8 +1,7 @@
-from gpiozero import Button, Device
-from gpiozero.pins.lgpio import LGPIOFactory
+
 from signal import pause
 
-from pi_home_security.pi_service.service import GPIOService
+from pi_home_security.hardware.gpio_service import GPIOService
 
 
 # sensor list
