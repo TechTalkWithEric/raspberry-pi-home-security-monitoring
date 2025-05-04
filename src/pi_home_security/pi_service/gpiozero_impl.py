@@ -5,6 +5,7 @@ from gpiozero import Device
 from gpiozero.pins.lgpio import LGPIOFactory
 
 from .base import GPIOInterface
+from pi_home_security.components.pi_pin import PiPin
 
 # setup the pin factory
 Device.pin_factory = LGPIOFactory()

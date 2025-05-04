@@ -1,2 +1,2 @@
-# libararies that are only available on the rasberry pi
+# libararies that are only available on the rasberry pi / debian
 lgpio

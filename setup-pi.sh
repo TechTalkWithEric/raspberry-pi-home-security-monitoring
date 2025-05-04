@@ -14,6 +14,8 @@ if ! grep -q "^dtparam=i2c_arm=on" /boot/config.txt; then
   echo "dtparam=i2c_arm=on" | sudo tee -a /boot/config.txt
 fi
 
+exit
+
 # 📦 Install i2c and GPIO utilities
 echo "📦 Installing packages..."
 sudo apt-get update
@@ -23,8 +25,9 @@ sudo apt-get install -y \
   python3-smbus \
 
 
-
+# remove the apt version
 sudo apt remove pigpio
+# get the this specific version
 cd ~
 git clone https://github.com/joan2937/pigpio.git
 cd pigpio
