@@ -1,8 +1,6 @@
 # Facade / entrypoint
 
 import os
-from .gpiozero_impl import GPIOZeroService
-from .mock_impl import MockGPIOService
 from .base import GPIOInterface
 
 

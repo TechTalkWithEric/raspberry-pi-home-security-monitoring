@@ -2,28 +2,40 @@ import os
 import json
 from typing import Dict, Any, List
 from signal import pause
+
 from pi_home_security.hardware.boards.pi_board import PiBoard
 from pi_home_security.components.pi_pin import PiPin
-from pi_home_security.alarm.alarm_manager import AlarmManager
+from pi_home_security.hardware.models.security_device import SecurityDevice, PiPinInterface
+from pi_home_security.bus.event_bus import event_bus
+from pi_home_security.subscribers import load_all_subscribers
 
 class HomeSecurityService:
-    def __init__(self):        
+    def __init__(self):
         self.board: PiBoard | None = None
         self._verbose: bool = True
         self.config: dict = {}
-        self.alarm: AlarmManager = AlarmManager()
+        self.devices: Dict[str, SecurityDevice] = {}
+
         self._load()
 
     def _load(self):
+        """Initializes system components."""
         self.board = PiBoard()
         self.__list_pins()
         self.__load_configuration()
+        # load all of our subscriber
+        load_all_subscribers()
+
+        # always do this last... nothing else runs after it
         self.__run()
+        
 
     def __list_pins(self):
         if not self._verbose:
             return
-        for key, pi_pin in self.board.pins.items():
+
+        pins: Dict[str, Any] = self.board.pins
+        for key, pi_pin in pins.items():
             print(f"pin: {key} {pi_pin.name}")
 
     def __load_configuration(self):
@@ -35,9 +47,10 @@ class HomeSecurityService:
         config = self.load_json(file)
         if config:
             self.config = config
+
         self.__load_security_sensors()
 
-    def load_json(self, filepath: str)-> dict | None:
+    def load_json(self, filepath: str) -> dict | None:
         try:
             with open(filepath, 'r') as file:
                 return json.load(file)
@@ -49,42 +62,50 @@ class HomeSecurityService:
         sensors: List[Dict[str, Any]] = self.config.get("sensors", [])
         print("Activating sensors...")
 
-        def sensor_handler(pin: str, name: str):
-            value = self.board.gpio_service.read(pin)
-            self.alarm.update_sensor(pin, name, value)
-
         for sensor in sensors:
             name = sensor.get("name")
-            pin = str(sensor.get("pin"))            
+            pin = str(sensor.get("pin"))
             input_type = sensor.get("sensor_type", "button")
+            controller = sensor.get("gpio_controller", "pi").lower()
 
-            self.board.gpio_service.setup_input(
-                pin_id=pin,
-                input_type=input_type,
-                name=name,
-                when_pressed=sensor_handler,
-                when_released=sensor_handler
-            )
+            pi_pin: PiPin = self.board.pins.get(pin)
+            if not pi_pin:
+                print(f"Skipping unknown pin: {pin}")
+                continue
+
+            interface = PiPinInterface(pin_id=pin, pin_obj=pi_pin, is_external=controller != "pi")
+            device = SecurityDevice(name=name, sensor_type=input_type, interface=interface)
+
+            device.on_change(lambda d: self.handle_sensor_event(d))
+            self.board.gpio_service.setup_input(device, input_type)
+            self.devices[pin] = device
+
+    def handle_sensor_event(self, device: SecurityDevice):
+        print(f"[ALERT] {device.name} changed to {device.state.upper()} at {device.last_updated}")
+        event_bus.publish("sensor.updated", device)
 
     def __run(self, mode: int = 0):
         if mode == 1:
-            print("Recovering from an unknown error.")
+            print("Attempting to recover from an unknown error.")
+
         print("🟢 Listening for sensor activity (Ctrl+C to exit)...")
 
         try:
             pause()
         except KeyboardInterrupt:
-            if input("Are you sure you want to exit [Y/n]?").lower() == "y":
+            response = input("Are you sure you want to exit [Y/n]?")
+            if response.lower() == "y":
                 self.__exit()
             else:
                 self.__run(2)
         except Exception as e:
-            print(f"Unknown error: {e}")
+            print(f"[ERROR] {e}")
             self.__run(1)
 
     def __exit(self):
         print("🚪 Shutting Down")
-        self.board.gpio_service.cleanup()
+        if self.board:
+            self.board.gpio_service.cleanup()
 
 
 def main():

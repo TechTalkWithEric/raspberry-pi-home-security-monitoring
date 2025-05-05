@@ -1,12 +1,22 @@
 import threading
 import time
+from typing import Dict, cast
 from gpiozero import Button, LED, MotionSensor, DigitalOutputDevice
 from gpiozero import Device
 from gpiozero.pins.lgpio import LGPIOFactory
+from pi_home_security.hardware.models.security_device import SecurityDevice, PiPinInterface
 from pi_home_security.components.pi_pin import PiPin
+
+
 Device.pin_factory = LGPIOFactory()
 
+
 class GPIOZeroService:
+    """
+    GPIOZero-based input/output service for managing physical GPIO pins.
+    Supports internal and external (e.g., MCP23017) pin handling.
+    """
+
     INPUT_CLASSES = {
         "button": Button, "door": Button, "window": Button, "motion": MotionSensor
     }
@@ -20,57 +30,67 @@ class GPIOZeroService:
         "led": LED, "digital": DigitalOutputDevice,
     }
 
-    def __init__(self, pin_registry: dict[str, PiPin]):
+    def __init__(self, pin_registry: Dict[str, object]):
+        """
+        Args:
+            pin_registry (dict): A dictionary mapping pin labels to PiPin objects.
+        """
         self.pin_registry = pin_registry
-        self.inputs = {}
-        self.outputs = {}
+        self.inputs: Dict[str, object] = {}
+        self.outputs: Dict[str, object] = {}
         self.polling_threads = []
 
-    def setup_input(self, pin_id: str, input_type="button", name=None, **kwargs):
-        pin = self.pin_registry[pin_id]
-        if pin.external_pin:
-            self._setup_external_input(pin_id, pin, input_type, name, **kwargs)
-        else:
-            self._setup_pi_input(pin_id, pin, input_type, name, **kwargs)
+    def setup_input(self, device: SecurityDevice, input_type: str = "button") -> None:
+        """
+        Configures an input device and links it to the SecurityDevice.
 
-    def _setup_pi_input(self, pin_id: str, pin: PiPin, input_type: str, name: str, **kwargs):
+        Args:
+            device (SecurityDevice): The security device to monitor.
+            input_type (str): Type of GPIO input ('door', 'motion', etc.)
+        """
+
+        device_interface: PiPinInterface = cast(PiPinInterface, device.interface)
+        pin = device_interface.pin_obj
+        pin_id = device_interface.pin_id
+
+        if device_interface.is_external:
+            self._setup_external_input(device, pin_id, pin, input_type)
+        else:
+            self._setup_pi_input(device, pin_id, pin, input_type)
+
+    def _setup_pi_input(self, device: SecurityDevice, pin_id: str, pin: PiPin, input_type: str):
         cls = self.INPUT_CLASSES[input_type]
         events = self.INPUT_EVENTS.get(input_type, [])
-        event_handlers = {e: kwargs.pop(e, None) for e in events}
 
-        device = cls(pin.bcm, **kwargs)
-        self.inputs[pin_id] = device
+        device_obj = cls(pin.bcm)
+        self.inputs[pin_id] = device_obj
 
-        for event, handler in event_handlers.items():
-            if handler:
-                def wrapped(h=handler, label=pin_id, name=name):
-                    return lambda: h(pin=label, name=name)
-                setattr(device, event, wrapped())
+        if "when_pressed" in events:
+            device_obj.when_pressed = lambda: device.update_state("closed")
+        if "when_released" in events:
+            device_obj.when_released = lambda: device.update_state("open")
 
-    def _setup_external_input(self, pin_id: str, pin: PiPin, input_type: str, name: str, **kwargs):
-        device = pin.external_pin
-        self.inputs[pin_id] = device
-
-        when_pressed = kwargs.pop("when_pressed", None)
-        when_released = kwargs.pop("when_released", None)
+    def _setup_external_input(self, device: SecurityDevice, pin_id: str, pin: PiPin, input_type: str):
+        gpio_pin = pin.external_pin  # The actual MCP23017 DigitalInOut object
+        self.inputs[pin_id] = gpio_pin
 
         def poll():
-            last_state = device.value
+            last_state = gpio_pin.value
+            device.update_state("closed" if last_state == 0 else "open")
+
             while True:
                 time.sleep(0.25)
-                current = device.value
+                current = gpio_pin.value
                 if current != last_state:
                     last_state = current
-                    if current == 0 and when_pressed:
-                        when_pressed(pin=pin_id, name=name)
-                    elif current == 1 and when_released:
-                        when_released(pin=pin_id, name=name)
+                    new_state = "closed" if current == 0 else "open"
+                    device.update_state(new_state)
 
         thread = threading.Thread(target=poll, daemon=True)
         thread.start()
         self.polling_threads.append(thread)
 
-    def setup_output(self, pin_id: str, output_type="led", **kwargs):
+    def setup_output(self, pin_id: str, output_type: str = "led", **kwargs) -> None:
         pin = self.pin_registry[pin_id]
         cls = self.OUTPUT_CLASSES[output_type]
         if pin.external_pin:
@@ -81,12 +101,12 @@ class GPIOZeroService:
         device = self.inputs.get(pin_id)
         return device.value if hasattr(device, 'value') else False
 
-    def write(self, pin_id: str, value: bool):
+    def write(self, pin_id: str, value: bool) -> None:
         device = self.outputs.get(pin_id)
         if device:
             device.on() if value else device.off()
 
-    def cleanup(self):
+    def cleanup(self) -> None:
         for d in list(self.inputs.values()) + list(self.outputs.values()):
             if hasattr(d, 'close'):
                 d.close()
