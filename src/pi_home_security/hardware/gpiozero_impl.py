@@ -33,7 +33,7 @@ class GPIOZeroService:
         else:
             self._setup_pi_input(pin_id, pin, input_type, name, **kwargs)
 
-    def _setup_pi_input(self, pin_id, pin, input_type, name, **kwargs):
+    def _setup_pi_input(self, pin_id: str, pin: PiPin, input_type: str, name: str, **kwargs):
         cls = self.INPUT_CLASSES[input_type]
         events = self.INPUT_EVENTS.get(input_type, [])
         event_handlers = {e: kwargs.pop(e, None) for e in events}
@@ -47,7 +47,7 @@ class GPIOZeroService:
                     return lambda: h(pin=label, name=name)
                 setattr(device, event, wrapped())
 
-    def _setup_external_input(self, pin_id, pin, input_type, name, **kwargs):
+    def _setup_external_input(self, pin_id: str, pin: PiPin, input_type: str, name: str, **kwargs):
         device = pin.external_pin
         self.inputs[pin_id] = device
 
