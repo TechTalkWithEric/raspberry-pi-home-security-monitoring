@@ -1,4 +1,7 @@
 # requirements.txt
 gpiozero
+
+adafruit-blinka
+adafruit-circuitpython-busdevice
 adafruit-circuitpython-mcp230xx
 smbus2
