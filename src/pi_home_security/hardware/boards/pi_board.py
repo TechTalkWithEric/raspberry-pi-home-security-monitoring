@@ -16,3 +16,7 @@ class PiBoard:
     @property
     def pins(self):
         return self._pins
+
+    @pins.setter
+    def pins(self, value: dict):
+        self._pins = value
