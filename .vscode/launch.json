@@ -20,7 +20,7 @@
             },
         },
         {
-            "name": "Python Debugger: Dashboard",
+            "name": "Dashboard",
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/src/pi_home_security/main.py",
@@ -34,7 +34,7 @@
             },
         },
         {
-            "name": "Python Debugger: Testing Dashboard",
+            "name": "Testing Dashboard",
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/src/pi_home_security/pi_ui/main.py",
@@ -48,10 +48,10 @@
             },
         },
         {
-            "name": "Python Debugger: Service",
+            "name": "Debug Home Services",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/src/pi_home_security/service.py",
+            "program": "${workspaceFolder}/src/pi_home_security/services.py",
             "console": "integratedTerminal",
             "env": {                
                 "ENVRIONMENT": "dev",

@@ -9,7 +9,8 @@ class EventBus:
         self.listeners.setdefault(event_name, []).append(callback)
 
     def publish(self, event_name: str, data: Any = None):
-        for pattern, callbacks in self.listeners.items():
+        items = list(self.listeners.items())
+        for pattern, callbacks in items:
             if fnmatch.fnmatch(event_name, pattern):
                 for cb in callbacks:
                     cb(data)

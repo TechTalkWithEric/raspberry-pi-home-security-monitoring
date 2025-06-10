@@ -9,13 +9,12 @@ from pi_home_security.hardware.models.security_device import SecurityDevice, PiP
 from pi_home_security.bus.event_bus import event_bus
 from pi_home_security.subscribers import load_all_subscribers
 
-class HomeSecurityService:
+class DeviceMonitoringService:
     def __init__(self):
         self.board: PiBoard | None = None
         self._verbose: bool = True
         self.config: dict = {}
-        self.devices: Dict[str, SecurityDevice] = {}
-
+        self.devices: Dict[str, SecurityDevice] = {}        
         self._load()
 
     def _load(self):
@@ -23,6 +22,9 @@ class HomeSecurityService:
         self.board = PiBoard()
         self.__list_pins()
         self.__load_configuration()
+
+
+
         # load all of our subscriber
         load_all_subscribers()
 
@@ -81,8 +83,8 @@ class HomeSecurityService:
             self.devices[pin] = device
 
     def handle_sensor_event(self, device: SecurityDevice):
-        print(f"[ALERT] {device.name} changed to {device.state.upper()} at {device.last_updated}")
-        event_bus.publish("sensor.updated", device)
+        print(f"[RAW] {device.name} changed to {device.state.upper()} at {device.last_updated}")
+        event_bus.publish("sensor.raw", device.to_dict())
 
     def __run(self, mode: int = 0):
         if mode == 1:
@@ -109,7 +111,7 @@ class HomeSecurityService:
 
 
 def main():
-    HomeSecurityService()
+    DeviceMonitoringService()
 
 
 if __name__ == "__main__":

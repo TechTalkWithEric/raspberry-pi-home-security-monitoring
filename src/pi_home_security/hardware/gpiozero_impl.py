@@ -15,6 +15,7 @@ class GPIOZeroService:
     """
     GPIOZero-based input/output service for managing physical GPIO pins.
     Supports internal and external (e.g., MCP23017) pin handling.
+    Manages all polling for the events
     """
 
     INPUT_CLASSES = {

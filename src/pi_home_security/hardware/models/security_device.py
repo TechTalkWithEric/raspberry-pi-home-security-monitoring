@@ -1,6 +1,7 @@
 from datetime import datetime
-from typing import Callable, Optional
+from typing import Callable, Optional, Dict, Any
 from pi_home_security.components.pi_pin import PiPin
+
 
 class SecurityDevice:
     """
@@ -24,6 +25,7 @@ class SecurityDevice:
             zone (str): Optional zone name.
             interface (object): Optional hardware interface (e.g. PiPinInterface).
         """
+        self.id = name
         self.name = name
         self.sensor_type = sensor_type
         self.zone = zone
@@ -44,7 +46,7 @@ class SecurityDevice:
         for cb in self.callbacks:
             cb(self)
 
-    def on_change(self, callback: Callable[['SecurityDevice'], None]) -> None:
+    def on_change(self, callback: Callable[["SecurityDevice"], None]) -> None:
         """
         Registers a callback that fires when the device's state changes.
 
@@ -52,6 +54,18 @@ class SecurityDevice:
             callback (callable): A function that takes the device instance.
         """
         self.callbacks.append(callback)
+
+    def to_dict(self) -> Dict[str, Any]:
+        response = {
+            "name": self.name,
+            "sensor_type": self.sensor_type,
+            "zone": self.zone,
+            # "interface": self.interface,
+            "state": self.state,
+            "last_updated": str(self.last_updated),
+        }
+
+        return response
 
 
 class PiPinInterface:

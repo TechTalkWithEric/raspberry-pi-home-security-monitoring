@@ -7,7 +7,7 @@ import pi_home_security.subscribers as subscribers
 from pi_home_security.hardware.models.security_device import SecurityDevice
 from pi_home_security.hardware.boards.pi_board import PiBoard
 from pi_home_security.bus.event_bus import event_bus
-from pi_home_security.service import HomeSecurityService
+from pi_home_security.device_monitoring_service import DeviceMonitoringService
 
 # Sample dummy pin object
 class DummyPin:
@@ -48,7 +48,7 @@ def tmp_config(tmp_path, monkeypatch):
     config_file = tmp_path / "config.json"
     config_file.write_text(json.dumps(config_data))
 
-    # Patch path resolution so HomeSecurityService finds our fixture
+    # Patch path resolution so DeviceMonitoringService finds our fixture
     monkeypatch.setenv('CONFIG_DIR', str(tmp_path))
     monkeypatch.setattr(os.path, 'dirname', lambda _: str(tmp_path))
     return config_data
@@ -59,14 +59,14 @@ def test_load_json_success(tmp_path):
     filepath = tmp_path / "good.json"
     obj = {"key": "value"}
     filepath.write_text(json.dumps(obj))
-    svc = HomeSecurityService.__new__(HomeSecurityService)
+    svc = DeviceMonitoringService.__new__(DeviceMonitoringService)
     result = svc.load_json(str(filepath))
     assert result == obj
 
 
 def test_load_json_failure(tmp_path, capsys):
     filepath = tmp_path / "bad.json"
-    svc = HomeSecurityService.__new__(HomeSecurityService)
+    svc = DeviceMonitoringService.__new__(DeviceMonitoringService)
     result = svc.load_json(str(filepath))
     captured = capsys.readouterr()
     assert result is None
@@ -75,14 +75,14 @@ def test_load_json_failure(tmp_path, capsys):
 # Test configuration loading and sensor setup
 
 def test_load_configuration_and_sensors(dummy_board, tmp_config, monkeypatch):
-    svc = HomeSecurityService.__new__(HomeSecurityService)
+    svc = DeviceMonitoringService.__new__(DeviceMonitoringService)
     svc._verbose = False
     svc.board = dummy_board
     svc.config = {}
     svc.devices = {}
 
     # Invoke private load configuration
-    HomeSecurityService._HomeSecurityService__load_configuration(svc)
+    DeviceMonitoringService._DeviceMonitoringService__load_configuration(svc)
 
     # Sensors should be loaded for GPIO17 and EXT01
     assert "GPIO17" in svc.devices
@@ -95,7 +95,7 @@ def test_load_configuration_and_sensors(dummy_board, tmp_config, monkeypatch):
 # Test event publishing
 @patch.object(event_bus, 'publish')
 def test_handle_sensor_event(mock_publish):
-    svc = HomeSecurityService.__new__(HomeSecurityService)
+    svc = DeviceMonitoringService.__new__(DeviceMonitoringService)
     device = MagicMock(spec=SecurityDevice)
     device.name = "Test"
     device.state = "open"
